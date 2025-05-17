@@ -1,0 +1,17 @@
+### ✅ Requisição sem API_KEY (limite por IP)
+GET http://localhost:8080/
+Accept: application/json
+
+### ✅ Requisição com API_KEY válida (limite por token)
+GET http://localhost:8080/
+Accept: application/json
+API_KEY: abc123
+
+### 🔁 Envie várias vezes essa requisição para forçar o limite por token
+GET http://localhost:8080/
+Accept: application/json
+API_KEY: abc123
+
+### 🔁 Envie várias vezes essa requisição para forçar o limite por IP
+GET http://localhost:8080/
+Accept: application/json
