@@ -3,13 +3,21 @@ package middleware
 import (
 	"github.com/marmota-alpina/rate-limiter/config"
 	"github.com/marmota-alpina/rate-limiter/internal/limiter"
+	"net"
 	"net/http"
+	"time"
 )
 
 func RateLimiterMiddleware(cfg *config.Config, store limiter.Storage) func(http.Handler) http.Handler {
 	return func(next http.Handler) http.Handler {
 		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-			key := r.RemoteAddr
+			ip, _, _ := net.SplitHostPort(r.RemoteAddr)
+			key := ip
+
+			if key == net.IPv6loopback.String() {
+				key = "127.0.0.1"
+			}
+
 			limit := cfg.PerIP
 			window := cfg.BlockDurationIP
 
@@ -24,7 +32,7 @@ func RateLimiterMiddleware(cfg *config.Config, store limiter.Storage) func(http.
 				return
 			}
 
-			count, _ := store.Increment(key, window, limit)
+			count, _ := store.Increment(key, time.Second, limit)
 			if count > limit {
 				err := store.Block(key, window)
 				if err != nil {

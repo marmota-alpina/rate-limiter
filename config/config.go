@@ -26,12 +26,18 @@ func Load() *Config {
 		BlockDurationIP:    getEnvAsDuration("RATE_LIMIT_BLOCK_DURATION_IP", 5*time.Minute),
 		PerToken:           getEnvAsInt("RATE_LIMIT_PER_TOKEN", 10),
 		BlockDurationToken: getEnvAsDuration("RATE_LIMIT_BLOCK_DURATION_TOKEN", 5*time.Minute),
-		RedisHost:          os.Getenv("REDIS_HOST"),
-		RedisPassword:      os.Getenv("REDIS_PASSWORD"),
+		RedisHost:          getEnvOrDefault("REDIS_HOST", "localhost:6379"),
+		RedisPassword:      getEnvOrDefault("REDIS_PASSWORD", ""),
 		RedisDB:            getEnvAsInt("REDIS_DB", 0),
 	}
 }
-
+func getEnvOrDefault(key string, defaultValue string) string {
+	value := os.Getenv(key)
+	if value == "" {
+		return defaultValue
+	}
+	return value
+}
 func getEnvAsInt(key string, defaultVal int) int {
 	if valStr := os.Getenv(key); valStr != "" {
 		if val, err := strconv.Atoi(valStr); err == nil {
